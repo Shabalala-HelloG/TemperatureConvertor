@@ -1,6 +1,6 @@
 package org.example.console
 
-import service.TempConvertorService
+import org.example.service.TempConvertorService
 import kotlin.system.exitProcess
 
 

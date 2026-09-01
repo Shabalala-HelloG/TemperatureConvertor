@@ -1,4 +1,4 @@
-package service
+package org.example.service
 
 import jakarta.xml.soap.MessageFactory
 import jakarta.xml.soap.MimeHeaders
