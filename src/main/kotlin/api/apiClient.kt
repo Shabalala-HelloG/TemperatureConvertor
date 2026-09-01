@@ -14,7 +14,6 @@ class GetResponseService{
 
 
     private val client = OkHttpClient.Builder().build()
-    val input="50"
 
     val mediaType: MediaType = "text/xml; charset=utf-8".toMediaType()
 
