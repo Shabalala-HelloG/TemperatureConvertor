@@ -19,37 +19,51 @@ class TempConvertorService {
         try {
             val respondFromSoap: Response = GetResponseService().getResponse(boolValue, tempValue)
             val responseBody = respondFromSoap.body
-            if (respondFromSoap.isSuccessful) {
+            when {
+                respondFromSoap.isSuccessful -> {
 
 
-                /**
-                 * when I print by response body I get something like:okhttp3.internal.http.RealResponseBody@16610890
-                 * this is a memory address
-                 * even when I used println(responseBody.toString()) it al
-                 */
-                if (responseBody == null) {
-                    println("The response body is empty")
-                } else {
                     /**
-                     * I did a search on how to print what's in the memory address of when the response body brings back an address
-                     * and there only way us to convert
+                     * when I print by response body I get something like:okhttp3.internal.http.RealResponseBody@16610890
+                     * this is a memory address
+                     * even when I used println(responseBody.toString()) it al
                      */
-                    val resString: String = responseBody.bytes().toString(Charsets.UTF_8)
-                    val soapMessage: SOAPMessage = stringToSoapMessage(resString)
+                    when (responseBody) {
+                        null -> {
+                            println("The response body is empty")
+                        }
 
-                    // This fetches the results from the SoapMessage
-                    val results: String =
-                        (if (userInput == 1) getValueFromSoapMessage(soapMessage, true) else getValueFromSoapMessage(
-                            soapMessage,
-                            false
-                        )).toString()
+                        else -> {
+                            /**
+                             * I did a search on how to print what's in the memory address of when the response body brings back an address
+                             * and there only way us to convert
+                             */
+                            val resString: String = responseBody.bytes().toString(Charsets.UTF_8)
+                            val soapMessage: SOAPMessage = stringToSoapMessage(resString)
 
-                    if (userInput == 1) println("New Temperature in Celsius: $results\n") else println("New Temperature in Fahrenheit: $results\n")
+                            // This fetches the results from the SoapMessage
+                            val results: String =
+                                (when {
+                                    userInput != 1 -> getValueFromSoapMessage(
+                                        soapMessage,
+                                        false
+                                    )
+
+                                    else -> getValueFromSoapMessage(soapMessage, true)
+                                }).toString()
+
+                            when (userInput) {
+                                1 -> println("New Temperature in Celsius: $results\n")
+                                else -> println("New Temperature in Fahrenheit: $results\n")
+                            }
 
 
+                        }
+                    }
                 }
-            } else {
-                throw ApiResponseException(respondFromSoap.code)
+                else -> {
+                    throw ApiResponseException(respondFromSoap.code)
+                }
             }
         }catch (_: IOException){
             throw ApiUnavailableException("Unable to connect to Temperature Convertor API")
@@ -72,13 +86,13 @@ class TempConvertorService {
          */
 
         var element: NodeList
-        if(decider) {
-
-            //true is for fahrenheitToCelsiusResult
-            element = message.soapBody.getElementsByTagName("FahrenheitToCelsiusResult")
-        }else{
-            // false is for CelsiusToFahrenheitResult
-            element = message.soapBody.getElementsByTagName("CelsiusToFahrenheitResult")
+        when {
+            decider ->
+                //true is for fahrenheitToCelsiusResult
+                element = message.soapBody.getElementsByTagName("FahrenheitToCelsiusResult")
+            else ->
+                // false is for CelsiusToFahrenheitResult
+                element = message.soapBody.getElementsByTagName("CelsiusToFahrenheitResult")
         }
 
         return element.item(0).textContent

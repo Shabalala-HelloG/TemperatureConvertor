@@ -33,16 +33,19 @@ class GetResponseService{
         val outputStream = ByteArrayOutputStream()
 
 
-        if(chooser) {
-            //true for F to C
-            envelopeValue=SoapMessageBuilder().buildFahrenheitToCelsiusRequestMessage(input.toString())
-            envelopeValue.writeTo(outputStream)
-            soapActionURl=soapActionURlForF2C
-        } else {
-            // false for C to F
-            envelopeValue= SoapMessageBuilder().buildCelsiusToFahrenheitRequestMessage(input.toString())
-            envelopeValue.writeTo(outputStream)
-            soapActionURl=soapActionURlForC2F
+        when {
+            chooser -> {
+                //true for F to C
+                envelopeValue = SoapMessageBuilder().buildFahrenheitToCelsiusRequestMessage(input.toString())
+                envelopeValue.writeTo(outputStream)
+                soapActionURl = soapActionURlForF2C
+            }
+            else -> {
+                // false for C to F
+                envelopeValue = SoapMessageBuilder().buildCelsiusToFahrenheitRequestMessage(input.toString())
+                envelopeValue.writeTo(outputStream)
+                soapActionURl = soapActionURlForC2F
+            }
         }
 
 
