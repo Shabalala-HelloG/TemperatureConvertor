@@ -1,5 +1,7 @@
 package org.example.service
 
+import exception.ApiResponseException
+import exception.ApiUnavailableException
 import jakarta.xml.soap.MessageFactory
 import jakarta.xml.soap.MimeHeaders
 import jakarta.xml.soap.SOAPConstants.SOAP_1_1_PROTOCOL
@@ -8,39 +10,49 @@ import okhttp3.Response
 import org.example.api.GetResponseService
 import org.w3c.dom.NodeList
 import java.io.ByteArrayInputStream
+import java.io.IOException
 import java.nio.charset.StandardCharsets
 
 class TempConvertorService {
 
     fun getTemp(boolValue: Boolean,userInput:Int,tempValue: Int) {
-        val respondFromSoap: Response =GetResponseService().getResponse(boolValue, tempValue )
-        val responseBody = respondFromSoap.body
-        if (respondFromSoap.isSuccessful) {
+        try {
+            val respondFromSoap: Response = GetResponseService().getResponse(boolValue, tempValue)
+            val responseBody = respondFromSoap.body
+            if (respondFromSoap.isSuccessful) {
 
-            /**
-             * when I print by response body I get something like:okhttp3.internal.http.RealResponseBody@16610890
-             * this is a memory address
-             * even when I used println(responseBody.toString()) it al
-             */
-            if (responseBody == null) {
-                println("The response body is empty")
-            } else {
+
                 /**
-                 * I did a search on how to print what's in the memory address of when the response body brings back an address
-                 * and there only way us to convert
+                 * when I print by response body I get something like:okhttp3.internal.http.RealResponseBody@16610890
+                 * this is a memory address
+                 * even when I used println(responseBody.toString()) it al
                  */
-                val resString: String = responseBody.bytes().toString(Charsets.UTF_8)
-                val soapMessage: SOAPMessage = stringToSoapMessage(resString)
+                if (responseBody == null) {
+                    println("The response body is empty")
+                } else {
+                    /**
+                     * I did a search on how to print what's in the memory address of when the response body brings back an address
+                     * and there only way us to convert
+                     */
+                    val resString: String = responseBody.bytes().toString(Charsets.UTF_8)
+                    val soapMessage: SOAPMessage = stringToSoapMessage(resString)
 
-                // This fetches the results from the SoapMessage
-                val results: String = (if (userInput == 1) getValueFromSoapMessage(soapMessage, true) else getValueFromSoapMessage(soapMessage, false)).toString()
+                    // This fetches the results from the SoapMessage
+                    val results: String =
+                        (if (userInput == 1) getValueFromSoapMessage(soapMessage, true) else getValueFromSoapMessage(
+                            soapMessage,
+                            false
+                        )).toString()
 
-                if(userInput==1)println("New Temperature in Celsius: $results\n") else println("New Temperature in Fahrenheit: $results\n")
+                    if (userInput == 1) println("New Temperature in Celsius: $results\n") else println("New Temperature in Fahrenheit: $results\n")
 
 
+                }
+            } else {
+                throw ApiResponseException(respondFromSoap.code)
             }
-        } else {
-            println("bool:${respondFromSoap.isSuccessful} code:${respondFromSoap.code}\n${respondFromSoap.headers}")
+        }catch (_: IOException){
+            throw ApiUnavailableException("Unable to connect to Temperature Convertor API")
         }
     }
 
