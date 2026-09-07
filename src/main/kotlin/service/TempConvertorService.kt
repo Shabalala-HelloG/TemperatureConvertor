@@ -3,11 +3,10 @@ package org.example.service
 import exception.ApiResponseException
 import exception.ApiUnavailableException
 import jakarta.xml.soap.MessageFactory
-import jakarta.xml.soap.MimeHeaders
 import jakarta.xml.soap.SOAPConstants.SOAP_1_1_PROTOCOL
 import jakarta.xml.soap.SOAPMessage
 import okhttp3.Response
-import org.example.api.GetResponseService
+import org.example.api.SoapApiClient
 import org.w3c.dom.NodeList
 import java.io.ByteArrayInputStream
 import java.io.IOException
@@ -17,7 +16,7 @@ class TempConvertorService {
 
     fun getTemp(boolValue: Boolean,userInput:Int,tempValue: Int) {
         try {
-            val respondFromSoap: Response = GetResponseService().getResponse(boolValue, tempValue)
+            val respondFromSoap: Response = SoapApiClient().getResponse(boolValue, tempValue)
             val responseBody = respondFromSoap.body
             when {
                 respondFromSoap.isSuccessful -> {
@@ -26,7 +25,7 @@ class TempConvertorService {
                     /**
                      * when I print by response body I get something like:okhttp3.internal.http.RealResponseBody@16610890
                      * this is a memory address
-                     * even when I used println(responseBody.toString()) it al
+                     * even when I used println(responseBody.toString())
                      */
                     when (responseBody) {
                         null -> {
@@ -77,7 +76,7 @@ class TempConvertorService {
          */
         val messageFactory =MessageFactory.newInstance(SOAP_1_1_PROTOCOL)
         val  inputStream = ByteArrayInputStream(responseString?.toByteArray(StandardCharsets.UTF_8) ?: ByteArray(0))
-        return messageFactory.createMessage(MimeHeaders(),inputStream)
+        return messageFactory.createMessage(null,inputStream)
     }
 
     private fun getValueFromSoapMessage(message: SOAPMessage,decider: Boolean): String? {

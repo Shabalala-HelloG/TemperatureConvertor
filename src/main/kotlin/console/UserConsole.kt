@@ -7,7 +7,7 @@ import kotlin.system.exitProcess
 
 
 class UserConsole{
-    val callUp= TempConvertorService()
+
 
     fun consolePlay(){
 
@@ -28,7 +28,7 @@ class UserConsole{
                       println("Enter your Temperature:")
                       tempValue = readlnOrNull()?.toIntOrNull()
                       //do f to c by doing a call up
-                      if (tempValue == null) println("No temperature found") else callUp.getTemp(
+                      if (tempValue == null) println("No temperature found") else TempConvertorService().getTemp(
                           true,
                           userInput.toInt(),
                           tempValue = tempValue
@@ -40,7 +40,7 @@ class UserConsole{
                       //do c to f
                       println("Enter your Temperature:")
                       tempValue = readlnOrNull()?.toIntOrNull()
-                      if (tempValue == null) println("No temperature found") else callUp.getTemp(
+                      if (tempValue == null) println("No temperature found") else TempConvertorService().getTemp(
                           false,
                           userInput.toInt(),
                           tempValue = tempValue
